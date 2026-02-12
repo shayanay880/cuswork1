@@ -355,12 +355,12 @@ async function resolveDNS(domain, onlyIPv4 = false, dohURL = "https://cloudflare
       return result;
     } catch (error) {
       const message2 = error instanceof Error ? error.message : String(error);
+      if (cached && !cached.isFailure) return cached.data;
       if (DNS_CACHE.size >= DNS_CACHE_MAX_SIZE) {
         const firstKey = DNS_CACHE.keys().next().value;
         DNS_CACHE.delete(firstKey);
       }
       DNS_CACHE.set(cacheKey, { error: message2, timestamp: Date.now(), isFailure: true });
-      if (cached && !cached.isFailure) return cached.data;
       throw new Error(`Error resolving DNS for ${domain}: ${message2}`);
     } finally {
       DNS_IN_FLIGHT.delete(cacheKey);
