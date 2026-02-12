@@ -4969,12 +4969,22 @@ async function handleTCPOutBound(ctx, remoteSocketWapper, addressRemote, portRem
   const chooseNextTarget = async () => {
     if (proxyMode === "proxyip") {
       const proxyIPs = panelIPs?.length ? panelIPs : parseIPs(envProxyIPs) ?? defaultProxyIPs;
+      if (!Array.isArray(proxyIPs) || proxyIPs.length === 0) {
+        currentAddress = addressRemote;
+        currentPort = portRemote;
+        return;
+      }
       const proxyIP = getRandomValue(proxyIPs);
       const { host, port } = parseHostPort(proxyIP, true);
       currentAddress = host || addressRemote;
       currentPort = port || portRemote;
     } else if (proxyMode === "prefix") {
       const prefixes = panelIPs?.length ? panelIPs : parseIPs(envPrefixes) ?? defaultPrefixes;
+      if (!Array.isArray(prefixes) || prefixes.length === 0) {
+        currentAddress = addressRemote;
+        currentPort = portRemote;
+        return;
+      }
       const prefix = getRandomValue(prefixes);
       const dynamicProxyIP = await getDynamicProxyIP(addressRemote, prefix, ctx.globalConfig.dohURL);
       if (dynamicProxyIP) {
